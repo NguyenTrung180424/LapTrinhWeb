@@ -1,0 +1,146 @@
+﻿@model ProductSearchInput
+@{
+    ViewData["Title"] = "Danh sách Sản phẩm";
+}
+
+<div class="row mt-4 mb-5">
+    <div class="col-lg-3 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white fw-bold fs-5 py-3">
+                <i class="bi bi-list me-2"></i> Loại hàng
+            </div>
+            <div class="list-group list-group-flush" style="max-height: 600px; overflow-y: auto;">
+                <button type="button" class="list-group-item list-group-item-action category-btn @(Model.CategoryID == 0 ? "active fw-bold" : "")"
+                        onclick="searchByCategory(0, this)">
+                    Tất cả sản phẩm
+                </button>
+
+                @if (ViewBag.Categories != null)
+                {
+                    foreach (var cat in ViewBag.Categories)
+                    {
+                        <button type="button" class="list-group-item list-group-item-action category-btn @(Model.CategoryID == cat.CategoryID ? "active fw-bold" : "")"
+                                onclick="searchByCategory(@cat.CategoryID, this)">
+                            @cat.CategoryName
+                        </button>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-9">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 p-3 bg-white shadow-sm rounded border">
+
+            <div class="d-flex align-items-center mb-2 mb-md-0 gap-2">
+                <span class="fw-bold text-info border-info text-nowrap"><i class="bi bi-cash-stack me-1"></i>Khoảng giá:</span>
+                <input type="number" id="minPriceInput" class="form-control form-control-sm border-info" style="width: 110px;" placeholder="Từ giá..." value="@(Model.MinPrice > 0 ? Model.MinPrice : "")">
+                <span class="text-muted">-</span>
+                <input type="number" id="maxPriceInput" class="form-control form-control-sm border-info" style="width: 110px;" placeholder="Đến giá..." value="@(Model.MaxPrice > 0 ? Model.MaxPrice : "")">
+                <button class="btn btn-sm btn-info text-white fw-bold" onclick="updatePriceFilter()">Lọc</button>
+            </div>
+
+            <div class="input-group" style="width: 300px;">
+                <input type="text" id="searchInput" class="form-control border-success" 
+                       placeholder="Nhập tên mặt hàng..." 
+                       value="@Model.SearchValue" 
+                       onkeypress="handleSearchEnter(event)">
+                <button class="btn btn-success fw-bold" type="button" onclick="executeSearch()">
+                    <i class="bi bi-search me-1"></i> Tìm
+                </button>
+            </div>
+        </div>
+
+        <form id="formSearch" action="~/Product/Search" data-target="searchResult">
+            <input type="hidden" name="PageSize" value="@Model.PageSize" />
+            <input type="hidden" name="SearchValue" id="hiddenSearchValue" value="@Model.SearchValue" />
+            <input type="hidden" name="CategoryID" id="hiddenCategoryID" value="@Model.CategoryID" />
+            <input type="hidden" name="MinPrice" id="hiddenMinPrice" value="@Model.MinPrice" />
+            <input type="hidden" name="MaxPrice" id="hiddenMaxPrice" value="@Model.MaxPrice" />
+        </form>
+
+        <div id="searchResult">
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 1. Hàm gọi AJAX tải dữ liệu
+        function paginationSearch(e, form, page) {
+            if (e) e.preventDefault();
+            const url = form.action;
+            const target = form.getAttribute("data-target");
+            const formData = new FormData(form);
+            formData.append("Page", page);
+
+            fetch(url, { method: "POST", body: formData })
+            .then(response => response.text())
+            .then(html => { 
+                document.getElementById(target).innerHTML = html;
+                // Dọn dẹp URL trên thanh địa chỉ trình duyệt
+                // Xóa các tham số cũ để nút Back của trình duyệt không bị nhầm lẫn
+                window.history.replaceState(null, '', '/Product');
+            })
+            .catch(error => console.error('Lỗi tải dữ liệu:', error));
+        }
+
+        // 2. Click vào Danh mục bên trái
+        function searchByCategory(catId, btnElement) {
+            document.getElementById('hiddenCategoryID').value = catId;
+
+            // Đổi màu active cho menu dọc
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active', 'fw-bold');
+            });
+            btnElement.classList.add('active', 'fw-bold');
+
+            // Bấm danh mục thì tìm lại từ trang 1
+            paginationSearch(null, document.getElementById('formSearch'), 1);
+        }
+
+        // 3. Click nút Lọc giá
+        function updatePriceFilter() {
+            document.getElementById('hiddenMinPrice').value = document.getElementById('minPriceInput').value;
+            document.getElementById('hiddenMaxPrice').value = document.getElementById('maxPriceInput').value;
+            paginationSearch(null, document.getElementById('formSearch'), 1);
+        }
+
+        // 4. Click nút Tìm kiếm
+        function executeSearch() {
+            document.getElementById('hiddenSearchValue').value = document.getElementById('searchInput').value;
+            paginationSearch(null, document.getElementById('formSearch'), 1);
+        }
+
+        // 5. Cho phép nhấn Enter ở ô tìm kiếm
+        function handleSearchEnter(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                executeSearch();
+            }
+        }
+
+        // Hàm Thêm vào giỏ hàng (bổ sung thêm để nút Chọn mua hoạt động)
+        function addToCart(productId, qty) {
+            fetch('/Cart/Add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `productID=${productId}&quantity=${qty}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                showToastNotification(data.message, data.code === 1);
+                if (data.code === 1) {
+                    document.querySelector('.badge.bg-danger').innerText = data.count;
+                }
+            });
+        }
+
+        // Tự động load trang 1 lúc vừa vào trang
+        document.addEventListener("DOMContentLoaded", function () {
+            paginationSearch(null, document.getElementById("formSearch"), @Model.Page);
+        });
+    </script>
+}

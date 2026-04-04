@@ -1,0 +1,193 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - NT Shop</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        /* Một chút CSS cho trang web thanh lịch hơn */
+        body { background-color: #f8f9fa; }
+        .navbar-brand { font-weight: bold; color: #0d6efd !important; font-size: 1.5rem; }
+        .cart-badge { position: absolute; top: 0; right: 0; transform: translate(50%, -50%); }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand text-primary fw-bold" href="~/?reset=true">
+                <i class="bi bi-shop me-1"></i> NT Shop
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#shopNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="shopNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="~/?reset=true">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/Product">Sản phẩm</a>
+                    </li>
+                </ul>
+                
+                @* <form class="d-flex mx-lg-4 flex-grow-1 my-2 my-lg-0"
+                       asp-controller="Home" asp-action="Index" method="get">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="searchValue"
+                               value="@Context.Request.Query["searchValue"]"
+                               placeholder="Nhập tên mặt hàng bạn muốn tìm...">
+                        <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
+                    </div>
+                </form> *@
+
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item me-3">
+                        <a href="~/Cart" class="nav-link position-relative me-3">
+                            <i class="bi bi-cart3 fs-4"></i>
+                            @{
+                                // Đọc số lượng mặt hàng thực tế đang có trong giỏ
+                                var cart = ShoppingCartHelper.GetShoppingCart();
+                                int cartCount = cart != null ? cart.Count : 0;
+                            }
+                            <span class="position-absolute top-25 start-100 translate-middle badge rounded-pill bg-danger">
+                                @cartCount
+                            </span>
+                        </a>
+                    </li>
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item dropdown">
+                            @{
+                                var userData = User.GetUserData();
+                            }
+                            <a class="nav-link dropdown-toggle fw-bold text-primary" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle me-1"></i> Xin chào, @userData?.DisplayName
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="accountDropdown">
+                                <li><a class="dropdown-item" href="~/Account/Profile"><i class="bi bi-person-lines-fill me-2 text-primary"></i>Hồ sơ cá nhân</a></li>
+                                <li><a class="dropdown-item" href="~/Account/ChangePassword"><i class="bi bi-shield-lock me-2 text-warning"></i>Đổi mật khẩu</a></li>
+
+                                <li><a class="dropdown-item" href="~/Order/History"><i class="bi bi-clock-history me-2 text-info"></i>Lịch sử đơn hàng</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger fw-bold" href="~/Account/Logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold" href="~/Account/Login"><i class="bi bi-person me-1"></i> Đăng nhập</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4 flex-grow-1">
+        @RenderBody()
+    </div>
+
+    <footer class="bg-dark text-light py-4 mt-auto">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2026 - NT Shop. Mua sắm thả ga, không lo về giá!</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+        <div id="shopToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-bold" id="toastMessage">
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showToastNotification(message, isSuccess = true) {
+            let toastEl = document.getElementById('shopToast');
+            let toastMsg = document.getElementById('toastMessage');
+
+            // Đổi màu: Thành công -> Xanh lá, Lỗi -> Đỏ
+            toastEl.classList.remove('bg-success', 'bg-danger');
+            toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
+
+            toastMsg.innerText = message;
+
+            // Khởi tạo Toast của Bootstrap và cài đặt tự tắt sau 2000ms (2 giây)
+            let toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+            toast.show();
+        }
+    </script>
+
+    <div class="modal fade" id="shopModal" tabindex="-1" aria-labelledby="shopModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold" id="shopModalLabel">Thông báo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body fs-6" id="shopModalBody">
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="shopModalCancelBtn">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="shopModalConfirmBtn">Đồng ý</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentConfirmCallback = null;
+        const shopModalEl = document.getElementById('shopModal');
+        const shopModal = new bootstrap.Modal(shopModalEl);
+
+        // Dùng thay thế cho alert()
+        function showModalAlert(title, message) {
+            document.getElementById('shopModalLabel').innerText = title;
+            document.getElementById('shopModalBody').innerText = message;
+
+            document.getElementById('shopModalCancelBtn').innerText = 'Đóng';
+            document.getElementById('shopModalConfirmBtn').style.display = 'none'; // Ẩn nút đồng ý
+
+            shopModal.show();
+        }
+
+        // Dùng thay thế cho confirm()
+        function showModalConfirm(title, message, callback) {
+            document.getElementById('shopModalLabel').innerText = title;
+            document.getElementById('shopModalBody').innerText = message;
+
+            document.getElementById('shopModalCancelBtn').innerText = 'Hủy';
+
+            let confirmBtn = document.getElementById('shopModalConfirmBtn');
+            confirmBtn.style.display = 'block'; // Hiện nút đồng ý
+            confirmBtn.innerText = 'Đồng ý';
+
+            // Gán hành động khi người dùng bấm "Đồng ý"
+            currentConfirmCallback = callback;
+
+            shopModal.show();
+        }
+
+        // Lắng nghe sự kiện bấm nút Đồng ý trên Modal
+        document.getElementById('shopModalConfirmBtn').addEventListener('click', function() {
+            shopModal.hide();
+            if (currentConfirmCallback) {
+                currentConfirmCallback();
+                currentConfirmCallback = null; // reset tránh bug
+            }
+        });
+    </script>
+</body>
+</html>

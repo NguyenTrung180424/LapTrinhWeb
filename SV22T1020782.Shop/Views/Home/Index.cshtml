@@ -1,0 +1,154 @@
+﻿@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<div id="shopBanner" class="carousel slide mb-4 shadow-sm rounded overflow-hidden" data-bs-ride="carousel" data-bs-interval="3000">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#shopBanner" data-bs-slide-to="0" class="active" aria-current="true"></button>
+        <button type="button" data-bs-target="#shopBanner" data-bs-slide-to="1"></button>
+        <button type="button" data-bs-target="#shopBanner" data-bs-slide-to="2"></button>
+        <button type="button" data-bs-target="#shopBanner" data-bs-slide-to="3"></button>
+        <button type="button" data-bs-target="#shopBanner" data-bs-slide-to="4"></button>
+    </div>
+
+    <div class="carousel-inner" style="max-height: 400px;">
+        <div class="carousel-item active">
+            <img src="~/images/banner/pic1.jpg" class="d-block w-100" alt="" style="object-fit: cover;">
+        </div>
+        <div class="carousel-item">
+            <img src="~/images/banner/pic2.jpg" class="d-block w-100" alt="" style="object-fit: cover;">
+        </div>
+        <div class="carousel-item">
+            <img src="~/images/banner/pic3.jpg" class="d-block w-100" alt="" style="object-fit: cover;">
+        </div>
+        <div class="carousel-item">
+            <img src="~/images/banner/pic4.jpg" class="d-block w-100" alt="" style="object-fit: cover;">
+        </div>
+        <div class="carousel-item">
+            <img src="~/images/banner/pic5.jpg" class="d-block w-100" alt="" style="object-fit: cover;">
+        </div>
+    </div>
+
+    <button class="carousel-control-prev" type="button" data-bs-target="#shopBanner" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#shopBanner" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    </button>
+</div>
+
+<div class="mb-5 text-center">
+    <h3 class="fw-bold mb-4">KHÁM PHÁ DANH MỤC</h3>
+    <div class="d-flex justify-content-center flex-wrap gap-3">
+        <a href="~/Product?reset=true" class="btn btn-outline-primary rounded-pill px-4 fw-medium fs-5">
+            Tất cả sản phẩm
+        </a>
+
+        @if (ViewBag.Categories != null)
+        {
+            foreach (var cat in ViewBag.Categories)
+            {
+                <a href="~/Product?categoryId=@cat.CategoryID" class="btn btn-outline-primary rounded-pill px-4 fw-medium fs-5">
+                    @cat.CategoryName
+                </a>
+            }
+        }
+    </div>
+</div>
+
+<div class="row text-center mt-5 mb-4">
+    <div class="col-md-3 mb-4">
+        <i class="bi bi-truck text-primary mb-3 d-block" style="font-size: 3rem;"></i>
+        <h5 class="fw-bold">Giao hàng siêu tốc</h5>
+        <p class="text-muted small">Miễn phí giao hàng cho đơn từ 500k toàn quốc.</p>
+    </div>
+    <div class="col-md-3 mb-4">
+        <i class="bi bi-shield-check text-success mb-3 d-block" style="font-size: 3rem;"></i>
+        <h5 class="fw-bold">Chất lượng đảm bảo</h5>
+        <p class="text-muted small">Cam kết hàng chính hãng 100%, bảo hành uy tín.</p>
+    </div>
+    <div class="col-md-3 mb-4">
+        <i class="bi bi-arrow-repeat text-warning mb-3 d-block" style="font-size: 3rem;"></i>
+        <h5 class="fw-bold">Đổi trả dễ dàng</h5>
+        <p class="text-muted small">Hỗ trợ đổi trả miễn phí trong vòng 7 ngày.</p>
+    </div>
+    <div class="col-md-3 mb-4">
+        <i class="bi bi-headset text-info mb-3 d-block" style="font-size: 3rem;"></i>
+        <h5 class="fw-bold">Hỗ trợ 24/7</h5>
+        <p class="text-muted small">Luôn sẵn sàng giải đáp thắc mắc của bạn.</p>
+    </div>
+</div>
+
+<div class="text-center mb-5">
+    <a href="~/Product?reset=true" class="btn btn-danger btn-lg px-5 fw-bold rounded-pill shadow">
+        MUA SẮM NGAY <i class="bi bi-arrow-right-circle ms-2"></i>
+    </a>
+</div>
+
+@* @section Scripts {
+    <script>
+        // Hàm AJAX thuần Javascript
+        function paginationSearch(e, form, page) {
+            if (e) e.preventDefault();
+
+            const url = form.action;
+            const target = form.getAttribute("data-target");
+            const formData = new FormData(form);
+            formData.append("Page", page);
+
+            fetch(url, { method: "POST", body: formData })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById(target).innerHTML = html;
+            })
+            .catch(error => console.error('Lỗi tải dữ liệu:', error));
+        }
+
+        // Hàm xử lý khi bấm vào các nút Loại hàng
+        function searchByCategory(catId, btnElement) {
+            // 1. Gán mã loại hàng mới vào form ẩn
+            document.getElementById('hiddenCategoryID').value = catId;
+
+            // 2. Cập nhật giao diện: Tắt màu nút cũ, bật màu nút mới
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-primary');
+            });
+            btnElement.classList.remove('btn-outline-primary');
+            btnElement.classList.add('btn-primary');
+
+            // 3. Kích hoạt AJAX load lại sản phẩm từ trang 1
+            paginationSearch(null, document.getElementById('formSearch'), 1);
+        }
+
+        function updatePriceFilter() {
+            document.getElementById('hiddenMinPrice').value = document.getElementById('minPriceInput').value;
+            document.getElementById('hiddenMaxPrice').value = document.getElementById('maxPriceInput').value;
+            paginationSearch(null, document.getElementById('formSearch'), 1);
+        }
+
+        function addToCart(productId, qty) {
+            fetch('/Cart/Add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `productID=${productId}&quantity=${qty}`
+            })
+            .then(res => res.json())
+            .then(data => {
+
+                showToastNotification(data.message, data.code === 1);
+
+                if (data.code === 1) {
+                    document.querySelector('.badge.bg-danger').innerText = data.count;
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+
+        // Tự động load lưới sản phẩm trang 1 ngay khi vừa vào web
+        document.addEventListener("DOMContentLoaded", function () {
+            paginationSearch(null, document.getElementById("formSearch"), @Model.Page);
+        });
+    </script>
+} *@

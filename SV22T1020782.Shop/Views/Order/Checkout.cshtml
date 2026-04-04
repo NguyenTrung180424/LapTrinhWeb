@@ -1,0 +1,120 @@
+﻿@model Customer
+@{
+    ViewData["Title"] = "Thanh toán đơn hàng";
+    var cart = ViewBag.Cart as List<SV22T1020782.Models.Sales.OrderDetailViewInfo>;
+    decimal totalCartPrice = cart?.Sum(x => x.TotalPrice) ?? 0;
+}
+
+<div class="mb-4 mt-3">
+    <h3 class="fw-bold"><i class="bi bi-bag-check-fill text-success me-2"></i>Tiến hành đặt hàng</h3>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mt-3">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <p class="text-muted">Vui lòng kiểm tra lại thông tin giao hàng và đơn hàng của bạn.</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-7 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-bold py-3 fs-5">
+                Thông tin người nhận
+            </div>
+            <div class="card-body p-4">
+                <form action="~/Order/InitOrder" method="post" id="formCheckout">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted fw-bold">Người đặt hàng</label>
+                            <input type="text" class="form-control bg-light" value="@Model.CustomerName" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted fw-bold">Số điện thoại liên hệ</label>
+                            <input type="text" class="form-control bg-light" value="@Model.Phone" readonly>
+                            <small class="text-muted fst-italic">(Sửa trong phần Hồ sơ nếu cần)</small>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+                    <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-geo-alt me-1"></i> Địa chỉ giao hàng cụ thể</h6>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tỉnh/Thành phố giao hàng <span class="text-danger">*</span></label>
+                        <select class="form-select border-primary" name="deliveryProvince" required>
+                            @if (ViewBag.Provinces != null)
+                            {
+                                foreach (var item in ViewBag.Provinces)
+                                {
+                                    if (item.Value == Model.Province)
+                                    {
+                                        <option value="@item.Value" selected>@item.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Địa chỉ chi tiết <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control border-primary" name="deliveryAddress" value="@Model.Address" placeholder="Số nhà, Tên đường, Phường/Xã..." required>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold shadow">
+                        XÁC NHẬN ĐẶT HÀNG <i class="bi bi-chevron-right ms-1"></i>
+                    </button>
+                    <a href="~/Cart" class="btn btn-link text-decoration-none w-100 mt-2 text-muted">
+                        <i class="bi bi-arrow-left me-1"></i> Quay lại giỏ hàng
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light fw-bold py-3 fs-5">
+                Tóm tắt đơn hàng (@cart?.Count sản phẩm)
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    @if (cart != null)
+                    {
+                        foreach (var item in cart)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-secondary rounded-pill me-3">@item.Quantity</span>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-truncate" style="max-width: 200px;" title="@item.ProductName">@item.ProductName</h6>
+                                        <small class="text-muted">@item.SalePrice.ToString("N0") đ</small>
+                                    </div>
+                                </div>
+                                <span class="fw-bold text-danger">@item.TotalPrice.ToString("N0") đ</span>
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+            <div class="card-footer bg-white py-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Tạm tính:</span>
+                    <span class="fw-medium">@totalCartPrice.ToString("N0") đ</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2 border-bottom pb-2">
+                    <span class="text-muted">Phí vận chuyển:</span>
+                    <span class="fw-medium">Miễn phí</span>
+                </div>
+                <div class="d-flex justify-content-between mt-3">
+                    <span class="fw-bold fs-5">TỔNG CỘNG:</span>
+                    <span class="fw-bold fs-4 text-danger">@totalCartPrice.ToString("N0") đ</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

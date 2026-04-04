@@ -1,0 +1,85 @@
+﻿@model Customer
+@{
+    ViewData["Title"] = "Đăng ký tài khoản";
+}
+
+<div class="row justify-content-center mt-4 mb-5">
+    <div class="col-md-8">
+        <div class="card shadow border-0 rounded-lg">
+            <div class="card-header bg-success text-white text-center py-3">
+                <h4 class="mb-0"><i class="bi bi-person-plus me-2"></i>Đăng ký tài khoản mới</h4>
+            </div>
+            <div class="card-body p-4">
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger">
+                        @Html.ValidationSummary(false, "", new { @class = "text-danger mb-0" })
+                    </div>
+                }
+
+                <form action="~/Account/Register" method="post">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Họ và Tên <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="CustomerName" value="@Model?.CustomerName" placeholder="Ví dụ: Nguyễn Văn A" required autofocus>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Email (Dùng để đăng nhập) <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" name="Email" value="@Model?.Email" placeholder="email@domain.com" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Mật khẩu <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" name="password" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Xác nhận mật khẩu <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" name="confirmPassword" required>
+                        </div>
+
+                        <div class="col-12 mt-3 mb-2">
+                            <h6 class="text-muted border-bottom pb-2">Thông tin liên hệ & Giao hàng (Tùy chọn)</h6>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Số điện thoại</label>
+                            <input type="text" class="form-control" name="Phone" value="@Model?.Phone" placeholder="09xxxxxxx">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Tỉnh/Thành phố</label>
+                            <select class="form-select" name="Province" required>
+                                @if (ViewBag.Provinces != null)
+                                {
+                                    foreach (var item in ViewBag.Provinces)
+                                    {
+                                        if (item.Value == Model?.Province)
+                                        {
+                                            <option value="@item.Value" selected>@item.Text</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12 mb-4">
+                            <label class="form-label fw-bold">Địa chỉ giao hàng</label>
+                            <input type="text" class="form-control" name="Address" value="@Model?.Address" placeholder="Số nhà, Tên đường, Phường/Xã, Quận/Huyện">
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 col-md-6 mx-auto">
+                        <button type="submit" class="btn btn-success btn-lg">Hoàn tất Đăng ký</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center py-3 bg-light">
+                <span class="text-muted">Đã có tài khoản? </span>
+                <a href="~/Account/Login" class="text-decoration-none fw-bold text-success">Đăng nhập tại đây</a>
+            </div>
+        </div>
+    </div>
+</div>

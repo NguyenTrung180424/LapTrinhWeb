@@ -1,0 +1,148 @@
+﻿@model OrderViewInfo
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng #" + Model.OrderID;
+    var details = ViewBag.Details as List<OrderDetailViewInfo>;
+    decimal totalAmount = details?.Sum(x => x.TotalPrice) ?? 0;
+}
+
+<div class="mt-4 mb-3">
+    <a href="~/Order/History" class="text-decoration-none text-primary fw-bold">
+        <i class="bi bi-arrow-left me-1"></i> Quay lại lịch sử
+    </a>
+</div>
+ 
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold">Chi tiết đơn hàng <span class="text-danger">#@Model.OrderID</span></h5>
+        <span class="text-muted">Ngày đặt: @Model.OrderTime.ToString("dd/MM/yyyy HH:mm")</span>
+    </div>
+
+    <div class="card-body p-4">
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+                <i class="bi bi-check-circle-fill me-1"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i> @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+         
+        <div class="alert
+            @(Model.Status == OrderStatusEnum.New ? "alert-primary" : "")
+            @(Model.Status == OrderStatusEnum.Accepted ? "alert-info" : "")
+            @(Model.Status == OrderStatusEnum.Shipping ? "alert-warning" : "")
+            @(Model.Status == OrderStatusEnum.Completed ? "alert-success" : "")
+            @(Model.Status == OrderStatusEnum.Cancelled || Model.Status == OrderStatusEnum.Rejected ? "alert-danger" : "")
+            d-flex align-items-center mb-4">
+
+            <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+            <div>
+                <h6 class="fw-bold mb-1">Trạng thái hiện tại: @OrderStatusExtensions.GetDescription(Model.Status)</h6>
+                @if (Model.Status == OrderStatusEnum.Completed)
+                {
+                    <small>Đơn hàng đã được giao thành công vào lúc @Model.FinishedTime?.ToString("dd/MM/yyyy HH:mm")</small>
+                }
+                @if (Model.Status == OrderStatusEnum.Cancelled)
+                {
+                    <small>Đơn hàng đã bị hủy vào lúc @Model.FinishedTime?.ToString("dd/MM/yyyy HH:mm")</small>
+                }
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-geo-alt-fill me-2"></i>Thông tin người nhận</h6>
+                <div class="p-3 bg-light rounded border">
+                    <p class="mb-1 fw-bold">@Model.CustomerName</p>
+                    <p class="mb-1 text-muted"><i class="bi bi-telephone me-1"></i> @Model.CustomerPhone</p>
+                    <p class="mb-0 text-muted"><i class="bi bi-house me-1"></i> @Model.DeliveryAddress, @Model.DeliveryProvince</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-truck me-2"></i>Thông tin giao hàng</h6>
+                <div class="p-3 bg-light rounded border">
+                    @if (Model.ShipperID != null && Model.ShipperID > 0)
+                    {
+                        <p class="mb-1 fw-bold">Đơn vị vận chuyển: @Model.ShipperName</p>
+                        <p class="mb-1 text-muted"><i class="bi bi-telephone me-1"></i> SĐT Tài xế: @Model.ShipperPhone</p>
+                        <p class="mb-0 text-muted"><i class="bi bi-clock me-1"></i> Thời gian lấy hàng: @Model.ShippedTime?.ToString("dd/MM/yyyy HH:mm")</p>
+                    }
+                    else
+                    {
+                        <p class="mb-0 text-muted fst-italic">Shop đang chuẩn bị hàng, chưa bàn giao cho đơn vị vận chuyển.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-box-seam me-2"></i>Sản phẩm đã mua</h6>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center" width="50">STT</th>
+                        <th>Tên sản phẩm</th>
+                        <th class="text-center">ĐVT</th>
+                        <th class="text-center">Số lượng</th>
+                        <th class="text-end">Đơn giá</th>
+                        <th class="text-end">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (details != null)
+                    {
+                        int stt = 1;
+                        foreach (var item in details)
+                        {
+                            <tr>
+                                <td class="text-center text-muted">@(stt++)</td>
+                                <td class="fw-medium">
+                                    <img src="~/images/products/@(string.IsNullOrEmpty(item.Photo) ? "nophoto.png" : item.Photo)" alt="Ảnh" width="40" height="40" class="object-fit-cover rounded me-2">
+                                    @item.ProductName
+                                </td>
+                                <td class="text-center">@item.Unit</td>
+                                <td class="text-center">@item.Quantity</td>
+                                <td class="text-end">@item.SalePrice.ToString("N0") đ</td>
+                                <td class="text-end fw-bold text-danger">@item.TotalPrice.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" class="text-end fw-bold">Tổng cộng:</td>
+                        <td class="text-end fw-bold fs-5 text-danger">@totalAmount.ToString("N0") đ</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        @if (Model.Status == OrderStatusEnum.New)
+        {
+            <div class="text-end mt-4">
+                <button type="button" class="btn btn-outline-danger fw-bold px-4" onclick="confirmCancelOrder(@Model.OrderID)">
+                    <i class="bi bi-x-circle me-1"></i> Hủy đơn hàng
+                </button>
+                <form id="formCancelOrder" action="~/Order/Cancel/@Model.OrderID" method="post" style="display: none;"></form>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmCancelOrder(orderId) {
+            // Sử dụng hàm showModalConfirm (Popup xịn xò) mà chúng ta đã làm ở _Layout thay vì alert mặc định
+            showModalConfirm("Xác nhận hủy đơn", "Bạn có chắc chắn muốn hủy đơn hàng #" + orderId + " không? Hành động này không thể hoàn tác.", function() {
+                document.getElementById('formCancelOrder').submit();
+            });
+        }
+    </script>
+}
