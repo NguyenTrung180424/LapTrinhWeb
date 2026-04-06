@@ -197,6 +197,14 @@ namespace SV22T1020782.Shop.Controllers
         }
 
         [Authorize]
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            // Do file View của bạn tên là "ChangePass.cshtml" nên ta phải chỉ định rõ tên View
+            return View("ChangePassword");
+        }
+
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword, string confirmPassword)
         {

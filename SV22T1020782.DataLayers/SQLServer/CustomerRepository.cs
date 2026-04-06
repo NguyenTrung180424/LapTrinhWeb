@@ -50,7 +50,8 @@ namespace SV22T1020782.DataLayers.SQLServer
                                Province=@Province,
                                Address=@Address,
                                Phone=@Phone,
-                               Email=@Email
+                               Email=@Email,
+                               IsLocked=@IsLocked
                            WHERE CustomerID=@CustomerID";
 
             return await connection.ExecuteAsync(sql, data) > 0;
@@ -95,9 +96,13 @@ namespace SV22T1020782.DataLayers.SQLServer
                                FROM Customers
                                WHERE CustomerName LIKE @search
                                   OR ContactName LIKE @search
-                               ORDER BY CustomerName
-                               OFFSET @offset ROWS
-                               FETCH NEXT @pagesize ROWS ONLY";
+                               ORDER BY CustomerName";
+
+            // NẾU CÓ PHÂN TRANG (PageSize > 0) THÌ MỚI NỐI THÊM LỆNH OFFSET ... FETCH NEXT
+            if (input.PageSize > 0)
+            {
+                sqlData += " OFFSET @offset ROWS FETCH NEXT @pagesize ROWS ONLY";
+            }
 
             int count = await connection.ExecuteScalarAsync<int>(sqlCount, new { search });
 

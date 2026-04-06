@@ -265,7 +265,7 @@ public static class PartnerDataService
     {
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password)) return false;
 
-        password = CryptHelper.HashMD5(password);
+        //password = CryptHelper.HashMD5(password);
 
         return await customerDB.ChangePasswordAsync(email, password);
     }
@@ -273,7 +273,7 @@ public static class PartnerDataService
     {
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password)) return false;
 
-        password = CryptHelper.HashMD5(password);
+        //password = CryptHelper.HashMD5(password);
 
         return await customerDB.VerifyPasswordAsync(email, password);
     }

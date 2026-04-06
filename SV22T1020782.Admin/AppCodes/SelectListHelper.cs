@@ -13,11 +13,29 @@ namespace SV22T1020782.Admin
         public static async Task<List<SelectListItem>> Customers()
         {
             var list = new List<SelectListItem>() { new SelectListItem() { Value = "0", Text = "-- Chọn khách hàng --" } };
-            var input = new PaginationSearchInput() { Page = 1, PageSize = 9999, SearchValue = "" };
+            
+            // 🛠 FIX 1: Đổi PageSize thành 0 (hoặc int.MaxValue) để Database hiểu là "Lấy toàn bộ, không phân trang"
+            var input = new PaginationSearchInput() { Page = 1, PageSize = 0, SearchValue = "" };
             var result = await PartnerDataService.ListCustomersAsync(input);
+
             foreach (var item in result.DataItems)
             {
-                list.Add(new SelectListItem() { Value = item.CustomerID.ToString(), Text = item.CustomerName });
+                // Gắn thêm Số điện thoại (hoặc Email) vào sau tên để Admin nhận diện chính xác 100% khách hàng
+                string displayText = item.CustomerName;
+                if (!string.IsNullOrWhiteSpace(item.Phone))
+                {
+                    displayText += $" (SĐT: {item.Phone})";
+                }
+                else if (!string.IsNullOrWhiteSpace(item.Email))
+                {
+                    displayText += $" ({item.Email})";
+                }
+
+                list.Add(new SelectListItem()
+                {
+                    Value = item.CustomerID.ToString(),
+                    Text = displayText
+                });
             }
             return list;
         }

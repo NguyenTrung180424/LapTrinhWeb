@@ -13,7 +13,7 @@ namespace SV22T1020782.Shop
         public static async Task<List<SelectListItem>> Customers()
         {
             var list = new List<SelectListItem>() { new SelectListItem() { Value = "0", Text = "-- Chọn khách hàng --" } };
-            var input = new PaginationSearchInput() { Page = 1, PageSize = 9999, SearchValue = "" };
+            var input = new PaginationSearchInput() { Page = 1, PageSize = 0, SearchValue = "" };
             var result = await PartnerDataService.ListCustomersAsync(input);
             foreach (var item in result.DataItems)
             {

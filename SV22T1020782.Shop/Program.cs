@@ -1,5 +1,6 @@
-using SV22T1020782.Shop;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.FileProviders;
+using SV22T1020782.Shop;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,6 +42,13 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
 }
 app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "..", "SV22T1020782.Admin", "wwwroot", "images")),
+    RequestPath = "/images"
+});
+
 app.UseRouting();
 
 // Thứ tự 3 hàm này cực kỳ quan trọng, không được đảo lộn

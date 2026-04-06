@@ -35,17 +35,28 @@
 
             <div class="d-flex align-items-center mb-2 mb-md-0 gap-2">
                 <span class="fw-bold text-info border-info text-nowrap"><i class="bi bi-cash-stack me-1"></i>Khoảng giá:</span>
-                <input type="number" id="minPriceInput" class="form-control form-control-sm border-info" style="width: 110px;" placeholder="Từ giá..." value="@(Model.MinPrice > 0 ? Model.MinPrice : "")">
+                <input type="text" id="minPriceInput" class="form-control form-control-sm border-info" style="width: 110px;"
+                       placeholder="Từ giá..."
+                       value="@(Model.MinPrice > 0 ? Model.MinPrice?.ToString("#,##0").Replace(",", ".") : "")"
+                       oninput="formatCurrency(this)">
+
                 <span class="text-muted">-</span>
-                <input type="number" id="maxPriceInput" class="form-control form-control-sm border-info" style="width: 110px;" placeholder="Đến giá..." value="@(Model.MaxPrice > 0 ? Model.MaxPrice : "")">
+
+                <input type="text" id="maxPriceInput" class="form-control form-control-sm border-info" style="width: 110px;"
+                       placeholder="Đến giá..."
+                       value="@(Model.MaxPrice > 0 ? Model.MaxPrice?.ToString("#,##0").Replace(",", ".") : "")"
+                       oninput="formatCurrency(this)">
                 <button class="btn btn-sm btn-info text-white fw-bold" onclick="updatePriceFilter()">Lọc</button>
+
+                <button class="btn btn-sm btn-outline-secondary fw-bold" type="button" onclick="clearFilters()" title="Xóa toàn bộ bộ lọc">
+                    Xóa lọc
+                </button>
             </div>
 
             <div class="input-group" style="width: 300px;">
-                <input type="text" id="searchInput" class="form-control border-success" 
-                       placeholder="Nhập tên mặt hàng..." 
-                       value="@Model.SearchValue" 
-                       onkeypress="handleSearchEnter(event)">
+                <input type="text" id="searchInput" class="form-control border-success"
+                       placeholder="Nhập tên mặt hàng..."
+                       value="@Model.SearchValue">
                 <button class="btn btn-success fw-bold" type="button" onclick="executeSearch()">
                     <i class="bi bi-search me-1"></i> Tìm
                 </button>
@@ -101,10 +112,28 @@
             paginationSearch(null, document.getElementById('formSearch'), 1);
         }
 
-        // 3. Click nút Lọc giá
+        // --- CÁC HÀM XỬ LÝ FORMAT TIỀN TỆ ---
+        // Tự động chèn dấu chấm khi người dùng gõ phím
+        function formatCurrency(input) {
+            // Xóa tất cả các ký tự không phải là số (chữ cái, dấu chấm cũ...)
+            let value = input.value.replace(/\D/g, "");
+
+            // Format lại bằng cách chèn dấu chấm cứ mỗi 3 số
+            if (value !== "") {
+                input.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            } else {
+                input.value = "";
+            }
+        }
+
+        // 3. Click nút Lọc giá (ĐÃ SỬA LẠI)
         function updatePriceFilter() {
-            document.getElementById('hiddenMinPrice').value = document.getElementById('minPriceInput').value;
-            document.getElementById('hiddenMaxPrice').value = document.getElementById('maxPriceInput').value;
+            // Xóa sạch dấu chấm để trả về số nguyên chuẩn truyền xuống CSDL
+            let minVal = document.getElementById('minPriceInput').value.replace(/\./g, '');
+            let maxVal = document.getElementById('maxPriceInput').value.replace(/\./g, '');
+
+            document.getElementById('hiddenMinPrice').value = minVal;
+            document.getElementById('hiddenMaxPrice').value = maxVal;
             paginationSearch(null, document.getElementById('formSearch'), 1);
         }
 
@@ -138,9 +167,41 @@
             });
         }
 
+        // 4.5. Hàm Xóa toàn bộ bộ lọc
+        function clearFilters() {
+            // Reset các ô nhập liệu trên giao diện về rỗng
+            document.getElementById('searchInput').value = '';
+            document.getElementById('minPriceInput').value = '';
+            document.getElementById('maxPriceInput').value = '';
+
+            // Reset dữ liệu ẩn của Form về rỗng/mặc định
+            document.getElementById('hiddenSearchValue').value = '';
+            document.getElementById('hiddenMinPrice').value = '';
+            document.getElementById('hiddenMaxPrice').value = '';
+            document.getElementById('hiddenCategoryID').value = '0';
+
+            // Reset màu sắc của menu Loại hàng bên trái về nút "Tất cả sản phẩm"
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active', 'fw-bold');
+            });
+            // Chọn phần tử đầu tiên (Tất cả sản phẩm) và tô đậm nó
+            document.querySelector('.category-btn').classList.add('active', 'fw-bold');
+
+            // Gọi AJAX tải lại dữ liệu nguyên bản từ trang 1
+            paginationSearch(null, document.getElementById('formSearch'), 1);
+        }
+
         // Tự động load trang 1 lúc vừa vào trang
         document.addEventListener("DOMContentLoaded", function () {
             paginationSearch(null, document.getElementById("formSearch"), @Model.Page);
+
+            //Lắng nghe sự kiện gõ phím trên ô tìm kiếm
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Ngăn hành vi submit form mặc định
+                    executeSearch();    // Gọi hàm tìm kiếm
+                }
+            });
         });
     </script>
 }

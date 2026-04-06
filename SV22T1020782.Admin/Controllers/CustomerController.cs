@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SV22T1020782.Models;
 using SV22T1020782.Models.Common;
 using SV22T1020782.Models.Partner;
 
@@ -112,7 +113,16 @@ namespace SV22T1020782.Admin.Controllers
             //Luu du liệu vào CSDL
             if (data.CustomerID == 0)
             {
-                await PartnerDataService.AddCustomerAsync(data);
+                // Thay vì gọi await ngay, ta lấy ID trả về để kiểm tra
+                int newId = await PartnerDataService.AddCustomerAsync(data);
+
+                if (newId > 0)
+                {
+                    // 🔐 BẢO MẬT: Cấp ngay mật khẩu mặc định "123456" (đã băm MD5) cho khách hàng mới
+                    string defaultPassword = CryptHelper.HashMD5("123456");
+                    await PartnerDataService.ChangeCustomerPasswordAsync(data.Email, defaultPassword);
+                }
+
                 PaginationSearchInput input = new PaginationSearchInput()
                 {
                     Page = 1,
@@ -170,8 +180,6 @@ namespace SV22T1020782.Admin.Controllers
             ViewBag.Title = "Đổi mật khẩu khách hàng";
 
             // 1. Validate rỗng
-            if (string.IsNullOrWhiteSpace(oldPassword))
-                ModelState.AddModelError("oldPassword", "Vui lòng nhập mật khẩu cũ");
 
             if (string.IsNullOrWhiteSpace(password))
                 ModelState.AddModelError("password", "Vui lòng nhập mật khẩu mới");
@@ -179,18 +187,23 @@ namespace SV22T1020782.Admin.Controllers
             if (password != confirmPassword)
                 ModelState.AddModelError("confirmPassword", "Mật khẩu xác nhận không khớp");
 
-            // 2. Kiểm tra mật khẩu cũ
-            bool isValidOldPassword = await PartnerDataService.VerifyCustomerPasswordAsync(customer.Email, oldPassword);
-            if (!isValidOldPassword)
-                ModelState.AddModelError("oldPassword", "Mật khẩu cũ không đúng");
-
             if (!ModelState.IsValid)
                 return View(customer);
 
             // 3. Đổi mật khẩu
-            await PartnerDataService.ChangeCustomerPasswordAsync(customer.Email, password);
+            // 🛠 THÊM DÒNG NÀY: Băm mật khẩu ra mã MD5 trước khi đưa xuống Service
+            string hashedPassword = CryptHelper.HashMD5(password);
+
+            // 🛠 SỬA Ở ĐÂY: Truyền hashedPassword thay vì password thường
+            bool result = await PartnerDataService.ChangeCustomerPasswordAsync(customer.Email, hashedPassword);
+
+            if (result)
+                TempData["SuccessMessage"] = $"Đã đổi mật khẩu thành công cho khách hàng: {customer.CustomerName}";
+            else
+                TempData["ErrorMessage"] = "Có lỗi xảy ra khi đổi mật khẩu!";
 
             return RedirectToAction("Index");
         }
+        
     }
 }
