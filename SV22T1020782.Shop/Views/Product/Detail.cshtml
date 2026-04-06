@@ -111,6 +111,14 @@
             }
         }
         function addToCartDetail(productId) {
+            //Kiểm tra trạng thái đăng nhập từ Server
+            let isLoggedIn = '@(User.Identity?.IsAuthenticated == true)' === 'True';
+            if (!isLoggedIn) {
+                // Dùng cái hàm showModalAlert có sẵn của bạn cho nó xịn
+                showModalAlert("Yêu cầu đăng nhập", "Bạn cần đăng nhập tài khoản để có thể thêm mặt hàng này vào giỏ!");
+                return; // Dừng lại ngay lập tức
+            }
+
             let qtyInput = document.getElementById('buyQuantity');
             let qty = parseInt(qtyInput.value);
 

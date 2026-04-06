@@ -44,6 +44,10 @@ namespace SV22T1020782.DataLayers.Interfaces
         /// <param name="productID"></param>
         /// <returns></returns>
         Task<bool> IsUsedAsync(int productID);
+        /// <summary>
+        /// Kiểm tra xem tên mặt hàng đã tồn tại hay chưa
+        /// </summary>
+        Task<bool> IsDuplicateNameAsync(string productName, int productId = 0);
 
         /// <summary>
         /// Lấy danh sách thuộc tính của mặt hàng

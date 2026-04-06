@@ -38,14 +38,35 @@
                                     <a class="btn btn-sm btn-primary" href="~/Product/EditAttribute/@item.ProductID?attributeId=@item.AttributeID">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a class="btn btn-sm btn-danger" href="~/Product/DeleteAttribute/@item.ProductID?attributeId=@item.AttributeID" onclick="return confirm('Xóa thuộc tính này?');">
+                                    <button type="button" class="btn btn-sm btn-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteAttributeModal"
+                                            onclick="document.getElementById('btnConfirmDeleteAttribute').href = '@Url.Action("DeleteAttribute", "Product", new { id = item.ProductID, attributeId = item.AttributeID })';">
                                         <i class="bi bi-trash"></i>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                         }
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteAttributeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i> Xác nhận xóa thuộc tính</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start fs-6 text-dark">
+                Bạn có chắc chắn muốn xóa thuộc tính này không? Hành động này không thể hoàn tác.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+                <a id="btnConfirmDeleteAttribute" href="#" class="btn btn-danger">Xác nhận xóa</a>
             </div>
         </div>
     </div>

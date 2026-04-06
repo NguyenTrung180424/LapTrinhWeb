@@ -28,11 +28,15 @@
 
             <div class="collapse navbar-collapse" id="shopNavbar">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    @{
+                        // Lấy tên của Controller hiện tại đang chạy (Ví dụ: "Home" hoặc "Product")
+                        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+                    }
                     <li class="nav-item">
-                        <a class="nav-link active" href="~/?reset=true">Trang chủ</a>
+                        <a class="nav-link @(currentController == "Home" ? "active fw-bold text-primary" : "")" href="~/?reset=true">Trang chủ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="~/Product">Sản phẩm</a>
+                        <a class="nav-link @(currentController == "Product" ? "active fw-bold text-primary" : "")" href="~/Product">Sản phẩm</a>
                     </li>
                 </ul>
                 

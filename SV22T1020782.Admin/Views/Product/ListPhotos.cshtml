@@ -56,14 +56,35 @@
                                     <a class="btn btn-sm btn-primary" href="~/Product/EditPhoto/@item.ProductID?photoId=@item.PhotoID">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a class="btn btn-sm btn-danger" href="~/Product/DeletePhoto/@item.ProductID?photoId=@item.PhotoID" onclick="return confirm('Bạn có chắc chắn muốn xóa ảnh này?');">
+                                    <button type="button" class="btn btn-sm btn-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deletePhotoModal"
+                                            onclick="document.getElementById('btnConfirmDeletePhoto').href = '@Url.Action("DeletePhoto", "Product", new { id = item.ProductID, photoId = item.PhotoID })';">
                                         <i class="bi bi-trash"></i>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                         }
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deletePhotoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i> Xác nhận xóa ảnh</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start fs-6 text-dark">
+                Bạn có chắc chắn muốn xóa bức ảnh này khỏi thư viện không? Hành động này không thể hoàn tác.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+                <a id="btnConfirmDeletePhoto" href="#" class="btn btn-danger">Xác nhận xóa</a>
             </div>
         </div>
     </div>

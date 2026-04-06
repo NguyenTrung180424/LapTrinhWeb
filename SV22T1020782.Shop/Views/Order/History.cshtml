@@ -32,7 +32,6 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th class="text-center">Mã ĐH</th>
                             <th>Ngày đặt</th>
                             <th>Nơi giao</th>
                             <th class="text-end">Tổng tiền</th>
@@ -44,7 +43,6 @@
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td class="text-center fw-bold text-secondary">#@item.OrderID</td>
                                 <td>
                                     <div class="fw-medium">@item.OrderTime.ToString("dd/MM/yyyy")</div>
                                     <small class="text-muted">@item.OrderTime.ToString("HH:mm")</small>

@@ -81,10 +81,27 @@ namespace SV22T1020782.Admin.Controllers
 
             if (string.IsNullOrWhiteSpace(data.ProductName))
                 ModelState.AddModelError(nameof(data.ProductName), "Tên mặt hàng không được bỏ trống");
+            else
+            {
+                bool isDuplicate = await CatalogDataService.IsDuplicateProductNameAsync(data.ProductName, data.ProductID);
+                if (isDuplicate)
+                    ModelState.AddModelError(nameof(data.ProductName), "Tên mặt hàng này đã tồn tại, vui lòng chọn tên khác!");
+            }
+
 
             if (data.Price <= 0)
                 ModelState.AddModelError(nameof(data.Price), "Giá phải > 0");
 
+            if (data.CategoryID == 0)
+                ModelState.AddModelError(nameof(data.CategoryID), "Vui lòng chọn Loại hàng");
+
+            if (data.SupplierID == 0)
+                ModelState.AddModelError(nameof(data.SupplierID), "Vui lòng chọn Nhà cung cấp");
+
+            if (string.IsNullOrWhiteSpace(data.Unit))
+                ModelState.AddModelError(nameof(data.Unit), "Vui lòng nhập Đơn vị tính");
+
+            // Nếu có lỗi thì trả về form
             if (!ModelState.IsValid)
                 return View("Edit", data);
 

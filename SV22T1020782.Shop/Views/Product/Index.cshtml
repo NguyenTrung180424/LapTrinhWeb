@@ -153,6 +153,14 @@
 
         // Hàm Thêm vào giỏ hàng (bổ sung thêm để nút Chọn mua hoạt động)
         function addToCart(productId, qty) {
+            //Kiểm tra trạng thái đăng nhập từ Server
+            let isLoggedIn = '@(User.Identity?.IsAuthenticated == true)' === 'True';
+            if (!isLoggedIn) {
+                showToastNotification("Vui lòng đăng nhập tài khoản để mua hàng!", false);
+
+                return; // Dừng lại, không cho chạy lệnh fetch bên dưới
+            }
+
             fetch('/Cart/Add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

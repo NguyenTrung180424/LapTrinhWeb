@@ -109,8 +109,8 @@ namespace SV22T1020782.Admin.Controllers
             }
 
             // 5. Thành công
-            TempData["Success"] = "Đổi mật khẩu thành công!";
-            return RedirectToAction("Index", "Home");
+            TempData["SuccessMessage"] = "Đổi mật khẩu thành công!";
+            return RedirectToAction("ChangePassword");
         }
         public async Task<IActionResult> Logout()
         {

@@ -26,7 +26,7 @@
                     <div class="row mb-3">
                         <label class="col-sm-3 col-form-label">Tên mặt hàng</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" asp-for="ProductName" autofocus />
+                            <input type="text" class="form-control" asp-for="ProductName" autofocus required/>
                             <span asp-validation-for="ProductName" class="text-danger"></span>
                         </div>
                     </div>
@@ -35,21 +35,28 @@
                         <label class="col-sm-3 col-form-label">Loại hàng</label>
                         <div class="col-sm-3">
                             <select class="form-select" asp-for="CategoryID" asp-items="await SelectListHelper.Categories()"></select>
+                            <span asp-validation-for="CategoryID" class="text-danger"></span>
                         </div>
                         <label class="col-sm-2 col-form-label text-end">Nhà cung cấp</label>
                         <div class="col-sm-4">
                             <select class="form-select" asp-for="SupplierID" asp-items="await SelectListHelper.Suppliers()"></select>
+                            <span asp-validation-for="SupplierID" class="text-danger"></span>
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label class="col-sm-3 col-form-label">Đơn vị tính</label>
                         <div class="col-sm-3">
-                            <input type="text" class="form-control" asp-for="Unit" />
+                            <input type="text" class="form-control" asp-for="Unit" required />
+                            <span asp-validation-for="Unit" class="text-danger"></span>
                         </div>
                         <label class="col-sm-2 col-form-label text-end">Giá</label>
                         <div class="col-sm-4">
-                            <input type="text" class="form-control money-input" asp-for="Price" />
+                            <input type="hidden" id="Price" name="Price" value="@Model.Price.ToString("0")" />
+
+                            <input type="text" id="DisplayPrice" class="form-control" value="@Model.Price.ToString("0")" required />
+
+                            <span asp-validation-for="Price" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -98,4 +105,40 @@
         await Html.RenderPartialAsync("ListAttributes", attributes);
         await Html.RenderPartialAsync("ListPhotos", photos);
     }
+}
+
+@section Scripts {
+    <script>
+        // 1. Hàm thêm dấu chấm hàng nghìn
+        function formatNumber(value) {
+            value = value.toString().replace(/\D/g, "");
+            return value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        let displayInput = document.getElementById("DisplayPrice");
+        let hiddenInput = document.getElementById("Price");
+
+        // 2. NGAY KHI LOAD TRANG: Lấy số thực từ thẻ Ẩn (đã được C# đổ vào) format lại cho thẻ Hiện
+        if (hiddenInput && hiddenInput.value !== "") {
+            displayInput.value = formatNumber(hiddenInput.value);
+        }
+
+        // 3. KHI NGƯỜI DÙNG GÕ PHÍM: Đồng bộ 2 thẻ ngay lập tức
+        if (displayInput) {
+            displayInput.addEventListener("input", function () {
+                let cursorPosition = this.selectionStart;
+                let originalLength = this.value.length;
+
+                // Format thẻ Hiện
+                this.value = formatNumber(this.value);
+
+                let newLength = this.value.length;
+                cursorPosition += newLength - originalLength;
+                this.setSelectionRange(cursorPosition, cursorPosition);
+
+                // 🛠 Cập nhật ngay thẻ Ẩn (xóa dấu chấm)
+                hiddenInput.value = this.value.replace(/\./g, "");
+            });
+        }
+    </script>
 }

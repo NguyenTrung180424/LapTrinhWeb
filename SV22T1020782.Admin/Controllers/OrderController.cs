@@ -10,7 +10,7 @@ namespace SV22T1020782.Admin.Controllers
     public class OrderController : Controller
     {
         public const string SEARCH_ORDER = "SearchOrder";
-        public const string SEARCH_PRODUCT = "SearchProduct";
+        public const string SEARCH_PRODUCT = "SearchProductForOrder";
         public const string DRAFT_ORDER = "DraftOrder";
 
         #region Các chuc nang tìm kiếm đon hàng

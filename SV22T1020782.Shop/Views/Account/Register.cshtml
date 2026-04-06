@@ -39,7 +39,7 @@
                         </div>
 
                         <div class="col-12 mt-3 mb-2">
-                            <h6 class="text-muted border-bottom pb-2">Thông tin liên hệ & Giao hàng (Tùy chọn)</h6>
+                            <h6 class="text-muted border-bottom pb-2">Thông tin liên hệ & Giao hàng</h6>
                         </div>
 
                         <div class="col-md-6 mb-3">
@@ -47,7 +47,7 @@
                             <input type="text" class="form-control" name="Phone" value="@Model?.Phone" placeholder="09xxxxxxx">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Tỉnh/Thành phố</label>
+                            <label class="form-label fw-bold">Tỉnh/Thành phố <span class="text-danger">*</span></label>
                             <select class="form-select" name="Province" required>
                                 @if (ViewBag.Provinces != null)
                                 {

@@ -77,7 +77,7 @@ namespace SV22T1020782.Shop.Controllers
                 ShoppingCartHelper.ClearCart();
 
                 // Lưu ID đơn hàng vào TempData để hiển thị thông báo ở trang lịch sử (nếu muốn)
-                TempData["SuccessMessage"] = $"Đặt hàng thành công! Mã đơn hàng của bạn là #{orderId}";
+                TempData["SuccessMessage"] = $"Đặt hàng thành công!";
 
                 // Chuyển hướng sang trang Lịch sử đơn hàng (Ta sẽ làm trang này tiếp theo)
                 return RedirectToAction("History");

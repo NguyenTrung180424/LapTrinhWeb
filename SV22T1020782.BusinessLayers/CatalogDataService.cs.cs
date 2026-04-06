@@ -118,6 +118,13 @@ namespace SV22T1020782.BusinessLayers
         {
             return await productDB.IsUsedAsync(productID);
         }
+        /// <summary>
+        /// Kiểm tra tên sản phẩm có bị trùng hay không
+        /// </summary>
+        public static async Task<bool> IsDuplicateProductNameAsync(string productName, int productId = 0)
+        {
+            return await productDB.IsDuplicateNameAsync(productName, productId);
+        }
 
         #endregion
 

@@ -80,7 +80,7 @@ else
                        onclick="return confirmAction(event, this.href, 'Bạn có thực sự muốn xóa toàn bộ giỏ hàng không?')">
                         <i class="bi bi-trash3 me-1"></i> Xóa tất cả
                     </a>
-                    <a href="~/" class="btn btn-sm btn-outline-primary">
+                    <a href="~/Product" class="btn btn-sm btn-outline-primary">
                         <i class="bi bi-arrow-left me-1"></i> Tiếp tục mua sắm
                     </a>
                 </div>
@@ -132,7 +132,7 @@ else
 
             if (isNaN(qty) || qty <= 0) {
                 // Thay alert() bằng Popup
-                showModalAlert('Lỗi nhập liệu', 'Số lượng không hợp lệ! Vui lòng dùng nút Xóa (thùng rác) bên cạnh nếu muốn bỏ mặt hàng này.');
+                showModalAlert('Lỗi nhập liệu', 'Số lượng không hợp lệ! Vui lòng dùng nút Xóa bên cạnh nếu muốn bỏ mặt hàng này.');
                 inputElement.value = inputElement.defaultValue; // Trả về số lượng cũ
                 return;
             }

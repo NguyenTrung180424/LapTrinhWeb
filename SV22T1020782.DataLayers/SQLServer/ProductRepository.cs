@@ -23,7 +23,10 @@ namespace SV22T1020782.DataLayers.SQLServer
         public async Task<bool> DeleteAsync(int productID)
         {
             using var connection = GetConnection();
-            string sql = "DELETE FROM Products WHERE ProductID=@productID";
+            string sql = @"
+                DELETE FROM ProductPhotos WHERE ProductID = @productID;
+                DELETE FROM ProductAttributes WHERE ProductID = @productID;
+                DELETE FROM Products WHERE ProductID = @productID;";
             return await connection.ExecuteAsync(sql, new { productID }) > 0;
         }
 
@@ -130,6 +133,18 @@ namespace SV22T1020782.DataLayers.SQLServer
                 RowCount = count,
                 DataItems = data.ToList()
             };
+        }
+
+        public async Task<bool> IsDuplicateNameAsync(string productName, int productId = 0)
+        {
+            using var connection = GetConnection();
+            // Lấy đếm số lượng sản phẩm có tên trùng, NHƯNG phải loại trừ chính nó (khi đang Edit)
+            string sql = @"SELECT COUNT(*) 
+                           FROM Products 
+                           WHERE ProductName = @productName AND ProductID <> @productId";
+
+            int count = await connection.ExecuteScalarAsync<int>(sql, new { productName, productId });
+            return count > 0;
         }
 
         // ATTRIBUTE

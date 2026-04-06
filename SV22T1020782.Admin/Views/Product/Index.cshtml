@@ -17,8 +17,7 @@
         <form id="formSearch"
               method="get"
               action="~/Product/Search"
-              data-target="searchResult"
-              onsubmit="paginationSearch(event, this, 1)">
+              data-target="searchResult">
 
             <input type="hidden" asp-for="PageSize" />
 
@@ -108,17 +107,28 @@
 
         });
 
-
         // ==============================
-        // Khi submit form -> bỏ dấu .
+        // Khi submit form -> Xóa chấm -> Gửi AJAX -> Phục hồi chấm
         // ==============================
 
-        document.getElementById("formSearch").addEventListener("submit", function () {
+        document.getElementById("formSearch").addEventListener("submit", function (e) {
+            e.preventDefault(); // Chặn hành vi tải lại trang mặc định
 
-            document.querySelectorAll(".money-input").forEach(input => {
-                input.value = input.value.replace(/\./g, "");
+            let moneyInputs = document.querySelectorAll(".money-input");
+
+            // 1. Tạm thời xóa dấu chấm để gửi số nguyên chuẩn về CSDL
+            moneyInputs.forEach(input => {
+                input.dataset.displayValue = input.value; // Lưu tạm cái chuỗi đẹp (có dấu chấm) lại
+                input.value = input.value.replace(/\./g, ""); // Xóa chấm đi
             });
 
+            // 2. Gọi hàm gửi AJAX
+            paginationSearch(null, this, 1);
+
+            // 3. Trả lại dấu chấm cho giao diện ngay lập tức (Khách hàng sẽ không hề hay biết)
+            moneyInputs.forEach(input => {
+                input.value = input.dataset.displayValue;
+            });
         });
 
     </script>
